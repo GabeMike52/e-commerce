@@ -1,0 +1,21 @@
+services:
+  db:
+    container_name: pg_database
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    envinroment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    driver: bridge

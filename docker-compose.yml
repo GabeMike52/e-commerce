@@ -1,15 +1,17 @@
 services:
   db:
-    container_name: pg_database
+    container_name: pg_ecommerce_database
     image: postgres
     ports:
       - "${POSTGRES_PORT}:5432"
-    envinroment:
+    environment:
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./create-db.sql:/docker-entrypoint-initdb.d/create_database.sql
+    restart: always
     networks:
       - backend
 

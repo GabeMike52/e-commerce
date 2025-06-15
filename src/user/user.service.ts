@@ -1,10 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
 import * as bcryptjs from "bcryptjs";
 import logger from 'src/config/logger.config';
+import { SigninUserDto } from './dtos/signin-user.dto';
 
 @Injectable()
 export class UserService {
@@ -32,5 +33,21 @@ export class UserService {
         
         const { password, ...userWithoutPassword } = savedUser;
         return userWithoutPassword;
+    }
+
+    public async signin(signinUserDto: SigninUserDto): Promise<Omit<User, 'password'> | null> {
+        const userFound = await this.userRepository.findOneBy({ email: signinUserDto.email })
+
+        if (!userFound) {
+            throw new NotFoundException("No user was found!");
+        }
+
+        const isMatch = bcryptjs.compareSync(signinUserDto.password, userFound.password);
+
+        if (isMatch) {
+            return userFound;
+        } else {
+            throw new UnauthorizedException("Password is not correct");
+        }
     }
 }
